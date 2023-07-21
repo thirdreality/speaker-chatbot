@@ -20,7 +20,7 @@ git checkout 31ac6383e1ac7e
 
 Download the `patch` below and place it in the directory of `patch/kernel/archive/meson64-5.10/`
 
-[thirdreality-0001-arm64-dts-meson-axg-add-sound-support-for-JetHub-D1.patch](release链接)
+[thirdreality-0001-arm64-dts-meson-axg-add-sound-support-for-JetHub-D1.patch](https://github.com/thirdreality/3R-chatGPT/releases/download/Assets/thirdreality-0001-arm64-dts-meson-axg-add-sound-support-for-JetHub-D1.patch)
 
 2. Ensure to use Kernel version 5.10.xx
 
@@ -50,7 +50,7 @@ Modify the corresponding firmware name in `build.sh`.
 
 ## Burn
 
-Download and extract [Aml_Burn_Tool.zip](release链接). If it is your first time using, you need to click on Setup_Aml_Burn_Tool_V3.1.0.exe to install some drivers. Then run Aml_Burn_Tool.exe in the v3 folder. Load the compiled **.img firmware and click Start Burn.
+Download and extract [Aml_Burn_Tool.zip](https://github.com/thirdreality/3R-chatGPT/releases/download/Assets/Aml_Burn_Tool.zip). If it is your first time using, you need to click on Setup_Aml_Burn_Tool_V3.1.0.exe to install some drivers. Then run Aml_Burn_Tool.exe in the v3 folder. Load the compiled **.img firmware and click Start Burn.
 
 You need to remove the bottom cover of the speaker, short-circuit the two terminals shown in the picture below, and then power on the speaker to start the burning process.
 ![Bottom plate image](images/bottom.jpg)
@@ -98,7 +98,6 @@ export OPENAI_API_KEY="your-openai-key"
 source /etc/profile
 ```
 
-
 ## Piper(TTS)
 
 Before building, You must copy the dependency lib of Piper to the desired path:
@@ -124,6 +123,18 @@ WHISPER_OPENBLAS=1 make r3_talk
 ./r3_talk -m ./models/ggml-tiny.en.bin -ac 512 -t 4 -c 0 -pm ./piper/models/en-us-amy-low.onnx 
 ```
 
+The `whisper` model needs to be downloaded first, such as `tiny.en`. You can also choose other [whisper models](models), which will provide better ASR recognition results, but the conversion time will be longer. Quantized models require less memory and disk space and depending on the hardware can be processed more efficiently.
+
+```bash
+# Download whisper model
+bash ./models/download-ggml-model.sh tiny.en
+
+# quantize a model with Q4_0 method
+make quantize
+./quantize models/ggml-base.en.bin models/ggml-base.en-q4_0.bin q4_0
+```
+
+The `piper` model `en-us-amy-low.onnx` has already been provided in the code, but you can also choose to use [other models](https://github.com/rhasspy/piper/releases/tag/v0.0.2). Remember to specify the path of the downloaded model during runtime.
 
 ## Help
 
@@ -169,7 +180,6 @@ piper options:
   --volume                NUM    volume value of the output audio (1-100)
 
 ```
-
 
 ## Dependence
 
