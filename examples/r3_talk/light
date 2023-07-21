@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "$1" > /sys/class/gpio/gpio414/value
+echo "$2" > /sys/class/gpio/gpio430/value
+echo "$3" > /sys/class/gpio/gpio431/value
