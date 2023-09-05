@@ -4,6 +4,7 @@
 #include <limits>
 #include <sstream>
 #include <stdexcept>
+#include <cstdio>
 
 #include <espeak-ng/speak_lib.h>
 #include <onnxruntime_cxx_api.h>
@@ -273,7 +274,7 @@ void synthesize(std::vector<PhonemeId> &phonemeIds,
                 SynthesisConfig &synthesisConfig, ModelSession &session,
                 std::vector<int16_t> &audioBuffer, SynthesisResult &result) {
   //spdlog::debug("Synthesizing audio for {} phoneme id(s)", phonemeIds.size());
-
+  fprintf(stderr, "%s: Synthesizing audio\n", __func__);
   auto memoryInfo = Ort::MemoryInfo::CreateCpu(
       OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
 
@@ -317,6 +318,7 @@ void synthesize(std::vector<PhonemeId> &phonemeIds,
   std::array<const char *, 1> outputNames = {"output"};
 
   // Infer
+  fprintf(stderr, "%s: Infer onnx.Run\n", __func__);
   auto startTime = std::chrono::steady_clock::now();
   auto outputTensors = session.onnx.Run(
       Ort::RunOptions{nullptr}, inputNames.data(), inputTensors.data(),
@@ -339,6 +341,7 @@ void synthesize(std::vector<PhonemeId> &phonemeIds,
   if (result.audioSeconds > 0) {
     result.realTimeFactor = result.inferSeconds / result.audioSeconds;
   }
+  fprintf(stderr, "%s: Synthesized %f second(s) of audio in %f second(s)\n", __func__, result.audioSeconds, result.inferSeconds);
   //spdlog::debug("Synthesized {} second(s) of audio in {} second(s)",
                 //result.audioSeconds, result.inferSeconds);
 
@@ -419,18 +422,6 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
   for (auto phonemesIter = phonemes.begin(); phonemesIter != phonemes.end();
        ++phonemesIter) {
     std::vector<Phoneme> &sentencePhonemes = *phonemesIter;
-
-    // if (spdlog::should_log(spdlog::level::debug)) {
-    //   // DEBUG log for phonemes
-    //   std::string phonemesStr;
-    //   for (auto phoneme : sentencePhonemes) {
-    //     utf8::append(phoneme, phonemesStr);
-    //   }
-
-    //   spdlog::debug("Converting {} phoneme(s) to ids: {}",
-    //                 sentencePhonemes.size(), phonemesStr);
-    // }
-
     SynthesisResult sentenceResult;
 
     // Use phoneme/id map from config
@@ -440,17 +431,6 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
 
     // phonemes -> ids
     phonemes_to_ids(sentencePhonemes, idConfig, phonemeIds, missingPhonemes);
-    // if (spdlog::should_log(spdlog::level::debug)) {
-    //   // DEBUG log for phoneme ids
-    //   std::stringstream phonemeIdsStr;
-    //   for (auto phonemeId : phonemeIds) {
-    //     phonemeIdsStr << phonemeId << ", ";
-    //   }
-
-    //   spdlog::debug("Converted {} phoneme(s) to {} phoneme id(s): {}",
-    //                 sentencePhonemes.size(), phonemeIds.size(),
-    //                 phonemeIdsStr.str());
-    // }
 
     // ids -> audio
     synthesize(phonemeIds, voice.synthesisConfig, voice.session, audioBuffer,
@@ -512,3 +492,4 @@ void textToWavFile(PiperConfig &config, Voice &voice, std::string text,
 } /* textToWavFile */
 
 } // namespace piper
+

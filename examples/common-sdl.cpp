@@ -292,13 +292,17 @@ int audio_async::play_wait() {
         return -1;
     }
     int ret = 0;
+    int cnt = 0;
 
     while (SDL_GetQueuedAudioSize(m_dev_id_out) > 2000) {
         if (sdl_poll_events() == false) {
             ret = -1;
             break;
         }
-        fprintf(stderr, "SDL_GetQueuedAudioSize: %d\n", SDL_GetQueuedAudioSize(m_dev_id_out));
+        if (cnt%3 == 0){
+            fprintf(stderr, "SDL_GetQueuedAudioSize: %d\n", SDL_GetQueuedAudioSize(m_dev_id_out));
+        }
+        cnt++;
         SDL_Delay(1000);
     }
 

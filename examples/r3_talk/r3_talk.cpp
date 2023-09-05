@@ -207,7 +207,8 @@ std::string makeOpenAIRequest(const std::string& prompt) {
         
         // Set POST data
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 50);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
         // Set the write callback function to handle the response
         std::string response;
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
@@ -266,7 +267,7 @@ struct whisper_params {
     std::string model_wsp = "models/ggml-base.en.bin";
     std::string light     = "./examples/r3_talk/light";
     std::string fname_out;
-    std::string prompt_word = "hi thirdreality";
+    std::string prompt_word = "hi whisper";
 };
 
 void whisper_print_usage(int argc, char ** argv, const whisper_params & params);
@@ -459,13 +460,14 @@ void rawOutputProc(vector<int16_t> &sharedAudioBuffer, mutex &mutAudio, conditio
             audioReady = false;
         }
 
+        fprintf(stderr, "%s: play_write  %ld buff\n", __func__, sizeof(int16_t) * internalAudioBuffer.size());
         audio.play_write((const char *)internalAudioBuffer.data(), sizeof(int16_t) * internalAudioBuffer.size());
         internalAudioBuffer.clear();
     }
 
 } // rawOutputProc
 
-int piper_tts(piper::PiperConfig &piperConfig, piper::Voice &piperVoice, std::string &text_to_speak, int volume) {
+int piper_tts(piper::PiperConfig &piperConfig, piper::Voice &piperVoice, std::string text_to_speak, int volume) {
     piper::SynthesisResult result;
     mutex mutAudio;
     condition_variable cvAudio;
@@ -480,6 +482,7 @@ int piper_tts(piper::PiperConfig &piperConfig, piper::Voice &piperVoice, std::st
         unique_lock lockAudio(mutAudio);
         copy(audioBuffer.begin(), audioBuffer.end(), back_inserter(sharedAudioBuffer));
         audioReady = true;
+        fprintf(stderr, "%s: audioReady\n", __func__);
         cvAudio.notify_one();
     };
 
@@ -686,11 +689,13 @@ int main(int argc, char ** argv) {
 
                     auto txt = ::trim(::transcribe(ctx_wsp, params, pcmf32_cur, prob0, t_ms));
 
-                    fprintf(stdout, "%s: Heard '%s%s%s', (t = %d ms)\n", __func__, "\033[1m", txt.c_str(), "\033[0m", (int) t_ms);
-                    txt = std::regex_replace(txt, std::regex("[,!?]"), "");
-                    txt = std::regex_replace(txt, std::regex("\\."), "");
+                    txt = std::regex_replace(txt, std::regex("[^a-zA-Z\\s]"), "");
                     transform(txt.begin(), txt.end(), txt.begin(),::tolower);
                     fprintf(stdout, "%s: Heard '%s%s%s', (t = %d ms)\n", __func__, "\033[1m", txt.c_str(), "\033[0m", (int) t_ms);
+
+                    if (txt.length() > params.prompt_word.length()+3) {
+                        txt = txt.substr(0, params.prompt_word.length()+3);
+                    }
 
                     const float sim = similarity(txt, k_prompt);
 
