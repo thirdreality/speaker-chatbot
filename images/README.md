@@ -26,7 +26,7 @@ Before compiling the Armbian firmware, you need to prepare a `Linux` environment
 
 ```bash
 git clone https://github.com/armbian/build.git
-cd Armbian
+cd build
 
 # Currently, higher versions of Kernel may experience startup exceptions
 git checkout 31ac6383e1ac7e
@@ -49,18 +49,44 @@ KERNELPATCHDIR='meson64-current'
 
 2.3. Compile
 
+Run in the root directory of build.
+
 ```bash
 ./compile.sh BOARD=jethubj100 BRANCH=current RELEASE=jammy BUILD_MINIMAL=no BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img
 ```
 
+The compiled generated firmware is located:
+
+`output/images/Armbian_22.11.0-trunk_Jethubj100_jammy_current_5.10.166.img`
+
+(This firmware is not yet available for burning.)
+
 2.4. Generate firmware
 
-Unzip the compression file `convert.zip` in Linux.
-Place `u-boot.bin` and `Armbian_22.11.0-trunk_Jethubj100_jammy_current_5.10.152.img` generated in Armbian into the `convert` directory.
-Modify the corresponding firmware name in `build.sh`.
+Unzip `Armbian_convert.zip` 
+
+[Armbian_Convert.zip](https://github.com/thirdreality/HA-Box/releases/download/Assets/Armbian_Convert.zip)
+
+Copy `Armbian_22.11.0-trunk_Jethubj100_jammy_current_5.10.166.img` to `Armbian_Convert`.
+
 ```bash
+cp build/output/images/Armbian_22.11.0-trunk_Jethubj100_jammy_current_5.10.166.img Armbian_Convert/
+```
+
+(If the compiled firmware is not `xxx.166.img`, you need to change to the appropriate name in `Armbian_Convert/build.sh`.)
+
+Add executable permissions to first, then run `./build.sh`.
+
+```bash
+cd Armbian_Convert
+chmod +x *
+chmod +x tools/*
 ./build.sh
 ```
+
+The generated firmware is located:
+
+`Armbian_Convert/output/Armbian_22.11.0-trunk_Jethubj100_jammy_current_5.10.166.burn.img` 
 
 ## Burn
 
