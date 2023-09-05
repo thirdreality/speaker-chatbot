@@ -1,68 +1,19 @@
 # 3R-chatGPT
 
-Based on the [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project, we created a new example called r3_talk, which integrates the OpenAI API and the open-source TTS project [piper](https://github.com/rhasspy/piper). The project runs on our self-designed [Linux speaker](音箱购买链接), with the firmware burned being the Armbian system.
+We have developed a new example called `r3_talk` based on the [whisper.cpp](https://github.com/ggerganov/whisper.cpp) project. This integration combines the power of the OpenAI API with the open-source TTS (Text-to-Speech) project called [piper](https://github.com/rhasspy/piper). 
 
-## Firmware
+## Preparation
 
-First, you need to prepare a firmware for flashing. You can either download the pre-compiled firmware we provide or compile a new one by yourself. [Armbian_for_speaker_5.10.142](https://dl.3reality.co/release/Mycroft/mycroft_for_speaker_jammy_current_5.10.142.burn.img)
+The purpose of `r3_talk` is to provide seamless speech capabilities on our custom-designed [Linux speaker](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110). If you are interested in experiencing it, you need to prepare:
 
-Before compiling the Armbian firmware, you need to prepare a Linux environment system. Then follow the steps below:
+* A [`Linux speaker`](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110) with Armbian firmware
+* A self-developed [`debug board`](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110) available for assistance
 
-1. Download code
+The `factory speaker` is equipped with pre-installed Armbian firmware, and we have done some initialization configurations to enhance user convenience. Upon receiving the speaker, you can directly access the `root` user by using the initial password of `1234qwer` in order to utilize the speaker effortlessly. 
 
-```bash
-git clone https://github.com/armbian/build.git
-cd Armbian
+If the folder `3R-chatGPT` is found in the root directory, this allows you to engage in a conversation with chatGPT instantly using [`./r3_talk`](#build-and-run) command. Before running, please ensure to configure your [`OPENAI_API_KEY`](#openai_api_key) and establish a [network connection](images/README.md#2-wifi-configuration).
 
-# Currently, higher versions of Kernel may experience startup exceptions
-git checkout 31ac6383e1ac7e
-```
-
-Download the `patch` below and place it in the directory of `patch/kernel/archive/meson64-5.10/`
-
-[thirdreality-0001-arm64-dts-meson-axg-add-sound-support-for-JetHub-D1.patch](https://github.com/thirdreality/3R-chatGPT/releases/download/Assets/thirdreality-0001-arm64-dts-meson-axg-add-sound-support-for-JetHub-D1.patch)
-
-2. Ensure to use Kernel version 5.10.xx
-
-Modify file: Armbian/config/sources/families/include/meson_common.inc
-
-```java
-current)
-KERNELBRANCH='branch:linux-5.10.y'
-KERNELPATCHDIR='meson64-current'
-;;
-```
-
-3. Compile
-
-```bash
-./compile.sh BOARD=jethubj100 BRANCH=current RELEASE=jammy BUILD_MINIMAL=no BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img
-```
-
-4. Generate firmware
-
-Unzip the compression file `convert.zip` in Linux.
-Place `u-boot.bin` and `Armbian_22.11.0-trunk_Jethubj100_jammy_current_5.10.152.img` generated in Armbian into the `convert` directory.
-Modify the corresponding firmware name in `build.sh`.
-```bash
-./build.sh
-```
-
-## Burn
-
-Download and extract [Aml_Burn_Tool.zip](https://github.com/thirdreality/3R-chatGPT/releases/download/Assets/Aml_Burn_Tool.zip). If it is your first time using, you need to click on Setup_Aml_Burn_Tool_V3.1.0.exe to install some drivers. Then run Aml_Burn_Tool.exe in the v3 folder. Load the compiled **.img firmware and click Start Burn.
-
-You need to remove the bottom cover of the speaker, short-circuit the two terminals shown in the picture below, and then power on the speaker to start the burning process.
-![Bottom plate image](images/bottom.jpg)
-
-You may also need to purchase a [debugging board](购买链接), which can not only help you burn the program more conveniently but also enable you to input commands to the speaker through the serial port.
-
-![debugging board](images/debugging_board.jpg)
-
-When burning the firmware using the debugging board, you need to prepare two Android data cables to connect the debugging board to the computer. Short-circuit the contacts in the diagram, and then toggle the switch on the debugging board. If the blue light is on, it indicates that it has been powered on, and wait for the burning process to begin.
-
-After the burning process is successful, you can restart the speaker and perform the initial configuration of the armbian system through the serial port. One thing to note is that there will be two serial ports displayed on the computer. Please open the one with the higher number and change the baud rate to 115200.
-
+For more in-depth instructions, please consult the [images/README.md](images/README.md) file, which also explains how to re-flash the speaker if necessary. This ensures a smooth experience with the `r3_talk` project and maximizes the functionality of our `Linux speaker`.
 
 ## Config
 
@@ -80,12 +31,12 @@ cd 3R-chatGPT
 chmod +x r3_config.sh
 ```
 
-The `config.sh` script includes some dependency installations and configuration of the gpio for the speaker. You can refer to the content and install and configure according to your own needs. The GPIO configuration includes enabling the sound and RGB. We write it into `/etc/profile.d/r3_gpio.sh` to ensure that the script is automatically executed every time you log in.
+The `r3_config.sh` script includes some dependency installations and configuration of the gpio for the speaker. You can refer to the content and install and configure according to your own needs. The GPIO configuration includes enabling the sound and RGB. We write it into `/etc/profile.d/r3_gpio.sh` to ensure that the script is automatically executed every time you log in.
 
 
 ## OPENAI_API_KEY
 
-To run chatGPT, you need to set your OPENAI_API_KEY environment variable:
+To run chatGPT, you need to set your `OPENAI_API_KEY` environment variable:
 
 ```bash
 # Open /etc/profile
@@ -100,41 +51,46 @@ source /etc/profile
 
 ## Piper(TTS)
 
-Before building, You must copy the dependency lib of Piper to the desired path:
+Before building, You must copy the dependency lib of `Piper` to the desired path:
 
 ```bash
-# Open the project root directory, run
+# Open the project root directory
+cd 3R-chatGPT
+
+# Run
 cp -r piper/lib/lib*  /usr/lib/aarch64-linux-gnu
 cp -r piper/lib/espeak-ng-data/  /usr/share
 ```
 
+## Models
 
-## Building
-
-You can build it like this:
-
-```bash
-# Build the "r3_talk" executable
-make r3_talk
-# Encoder processing can be accelerated on the CPU via OpenBLAS.
-WHISPER_OPENBLAS=1 make r3_talk
-
-# Run it
-./r3_talk -m ./models/ggml-tiny.en.bin -ac 512 -t 4 -c 0 -pm ./piper/models/en-us-amy-low.onnx 
-```
-
-The `whisper` model needs to be downloaded first, such as `tiny.en`. You can also choose other [whisper models](models), which will provide better ASR recognition results, but the conversion time will be longer. Quantized models require less memory and disk space and depending on the hardware can be processed more efficiently.
+The `whisper` model needs to be downloaded first, such as `tiny.en`. You can also choose other [whisper models](models), which will provide better ASR recognition results, but the conversion time will be longer. [Quantized models](https://github.com/ggerganov/whisper.cpp#quantization) require less memory and disk space and depending on the hardware can be processed more efficiently, if necessary. 
 
 ```bash
 # Download whisper model
 bash ./models/download-ggml-model.sh tiny.en
-
-# quantize a model with Q4_0 method
-make quantize
-./quantize models/ggml-base.en.bin models/ggml-base.en-q4_0.bin q4_0
 ```
 
-The `piper` model `en-us-amy-low.onnx` has already been provided in the code, but you can also choose to use [other models](https://github.com/rhasspy/piper/releases/tag/v0.0.2). Remember to specify the path of the downloaded model during runtime.
+The `piper` model `en-us-amy-low.onnx` has already been provided in the code, but you can also choose to use other [piper models](https://github.com/rhasspy/piper/releases/tag/v0.0.2). Remember to specify the path of the downloaded model during runtime.
+
+
+## Build and Run
+
+You can build it like this:
+
+```bash
+# Build the "r3_talk" executable, or use the following method
+make r3_talk
+
+# Encoder processing can be accelerated on the CPU via OpenBLAS.
+WHISPER_OPENBLAS=1 make r3_talk
+```
+
+Now, you can run the following command and then have a conversation with the speaker. Remember to specify the path of the downloaded model.
+```bash
+# Run
+./r3_talk -m ./models/ggml-tiny.en.bin -ac 512 -t 4 -c 0 -pm ./piper/models/en-us-amy-low.onnx 
+```
 
 ## Help
 
@@ -183,7 +139,7 @@ piper options:
 
 ## Dependence
 
-This project is based on the whisper.cpp project and integrated with the Piper project. For more details, please refer to:
+This project is based on the `whisper.cpp` project and integrated with the `piper` project. For more details, please refer to:
 
 ### [whisper.cpp](https://github.com/ggerganov/whisper.cpp)
 High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model.
@@ -191,6 +147,3 @@ High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisp
 ### [piper](https://github.com/rhasspy/piper)
 A fast, local neural text to speech system that sounds great and is optimized for the Raspberry Pi 4.
 Piper is used in a variety of projects.
-
-
-
