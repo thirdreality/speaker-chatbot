@@ -2,13 +2,21 @@
 
 The project operates on our custom `Linux speaker`, running the Armbian system as its firmware. Additionally, we utilize our self-developed `debug board` that not only facilitates program burning but also enables command input to the speaker via the serial port.
 * [Linux speaker](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110)
-![Linux speaker](speaker.jpg)
+
+<a href="/images/speaker.jpg"><img src="speaker.jpg" width="40%"></a>
+
 * [debug board](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110)
-![debug board](debug_board.jpg)
+
+<a href="/images/debug_board.jpg"><img src="debug_board.jpg" width="40%"></a>
+
 * two Android data cables
 
 
 Please prepare two Android data cables - one for retrieving serial port data and another one for powering. When connecting to the computer, note that there will be two serial ports displayed. Open the one with the higher number and change the baud rate to 115200. After that, you can proceed to [initialize and configure](#Initialize) the Armbian system.
+
+***Ensure that the USB Type-C interface of the debug board is correctly connected to the speaker as shown in the following figure.*** If it is inserted in reverse, no log information will be displayed through the serial port.
+
+<a href="/images/debug_speaker.jpg"><img src="debug_speaker.jpg" width="40%"></a>
 
 ## Firmware
 
@@ -97,14 +105,14 @@ To prepare the burning environment on the computer:
 4. Load the compiled `**.img` firmware file.
 5. Click on `Start` to initiate the burn process.
 
-![Bottom plate image](bottom.jpg)
+<a href="/images/bottom.jpg"><img src="bottom.jpg" width="40%"></a>
 
 To initiate the burning process for the speaker using the debug board:
 1. Make sure both Android data cables are connected to the computer.
 2. Remove the bottom cover of the speaker.
-3. Locate and short-circuit the two terminals as shown in the picture above.
+3. Locate and short-circuit the two terminals as shown in the picture above. **To ensure optimal results, it is advisable to use a tweezer when briefly connecting the two terminals. Given the terminals' small dimensions and vulnerability to damage, it is not advisable to attach two wires to them.**
 4. Power on the speaker by toggling the switch on the debugging board, with the blue light indicating activation.
-5. Wait for the burning process to begin.
+5. Once the computer indicates that the burning process has begun, you can safely release the tweezer without the need to constantly short-circuit the two terminals. Then wait for the burning process to complete successfully.
 
 After the burning process is successful, restart the speaker and perform the initial configuration of the armbian system through the serial port.
 
@@ -118,7 +126,7 @@ When a burned speaker is turned on for the first time, it usually requires some 
 * Choose default system command shell: choose 1
 * Press `Ctrl-C` to abort
 
-![initialize](initialize.png)
+<a href="/images/initialize.png"><img src="initialize.png" width="80%"></a>
 
 ### 2. WiFi configuration
 
@@ -131,5 +139,5 @@ nmcli dev wifi list
 nmcli dev wifi connect "network-ssid" password "network-password"
 ```
 
-![wificonfig](wificonfig.png)
+<a href="/images/wificonfig.png"><img src="wificonfig.png" width="80%"></a>
 
