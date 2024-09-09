@@ -6,8 +6,8 @@ We have developed a new example called `r3_talk` based on the [whisper.cpp](http
 
 The purpose of `r3_talk` is to provide seamless speech capabilities on our custom-designed [Linux speaker](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110). If you are interested in experiencing it, you need to prepare:
 
-* A [`Linux speaker`](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110) with Armbian firmware
-* A self-developed [`debug board`](https://www.3reality.com/online-store/Smart-Speaker-DEV-Kit-p572273110) available for assistance
+* A [`Linux speaker`](https://3reality.com/product/smart-speaker-development-kit/) with Armbian firmware
+* A self-developed [`debug board`](https://3reality.com/product/smart-speaker-development-kit/) available for assistance
 
 The `factory speaker` is equipped with pre-installed Armbian firmware, and we have done some initialization configurations to enhance user convenience. Upon receiving the speaker, you can directly access the `root` user by using the initial password of `1234qwer` in order to utilize the speaker effortlessly. 
 
